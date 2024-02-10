@@ -350,20 +350,6 @@ class Dragers:
         return inner
 
 
-# class INPUT(ctypes.Structure):
-#     class _I(ctypes.Union):
-#         _fields_ = [
-#             ("mi", MOUSEINPUT),
-#             ("ki", KEYBDINPUT),
-#             ("hi", HARDWAREINPUT),
-#         ]
-
-#     _anonymous_ = ("i",)
-#     _fields_ = [
-#         ("type", ctypes.wintypes.DWORD),
-#         ("i", _I),
-#     ]
-
 
 class Event:
     _initiated = None
