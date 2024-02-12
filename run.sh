@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 
+set -x 
 # this script is for replacing Makefile
 # run this in gitbash if you are windows user
 
@@ -29,7 +30,7 @@ activate_venv(){
         }
     fi
 
-    if [[ -n "$VIRTUAL_ENV" ]]; then
+    if [[ -z "$VIRTUAL_ENV" ]]; then
         echo "Activating the Virtual Environment [virtual]..."
         source ./virtual/Scripts/activate || {
             echo "Error: Failed to activate virtual environment."
@@ -45,7 +46,6 @@ all() {
     
     activate_venv $@
     
-
     if [[ -n "$VIRTUAL_ENV" ]]; then
         python ./src/main.py "$@"
     else
@@ -57,11 +57,16 @@ all() {
 runc(){
    c_code && ./a.exe
 }
+
+prepdll(){
+    gcc ./src/main.c -shared -o mouse_click.dll  -luser32   
+}
 c_code(){
     gcc ./src/main.c -o a.exe -luser32
 }
 
 case $1 in
     'runc') runc $@ ;;
+    'prepdll') prepdll $@;;
     *) all $@;;
 esac

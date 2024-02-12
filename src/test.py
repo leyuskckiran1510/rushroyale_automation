@@ -1,49 +1,19 @@
-import cv2
+import ctypes
+from os.path import dirname, abspath
 
+try:
+    parent_dir = dirname(dirname(abspath(__file__)))
+    mouse_click = ctypes.CDLL(rf"{parent_dir}\mouse_click.dll")
+except FileNotFoundError as e:
+    raise Exception(
+        f"{e.with_traceback(None)}\n\n{'-'*10}\nPlease Run \n\t./run.sh prepdll\n{'-'*10}\n "
+    )
+print(mouse_click._FuncPtr.__dict__)
+mouse_click.moue_click.argtypes = [ctypes.c_ulong, ctypes.c_int, ctypes.c_int]
+mouse_click.moue_click.restype = None
 
-haystack_img = cv2.imread("test/screen.png", 0)
-needle_img = cv2.imread("all_units/tutorial.png", 0)
-
-
-result = cv2.matchTemplate(haystack_img, needle_img, cv2.TM_CCOEFF_NORMED)
-
-
-min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-threshold = 0.66
-
-while True:
-    if max_val >= threshold:
-        needle_w = needle_img.shape[1]
-        needle_h = needle_img.shape[0]
-
-        top_left = max_loc
-        bottom_right = (top_left[0] + needle_w, top_left[1] + needle_h)
-        copy_ = haystack_img.copy()
-        cv2.rectangle(
-            copy_,
-            top_left,
-            bottom_right,
-            color=(0, 255, 0),
-            thickness=2,
-            lineType=cv2.LINE_4,
-        )
-        cv2.imshow("Match", copy_)
-
-    cv2.imshow("1", haystack_img)
-    cv2.imshow("2", needle_img)
-    key = cv2.waitKey(1) & 0xFF
-    match key:
-        case x if x == ord("q"):
-            exit(0)
-        case x if x == ord("w"):
-            threshold += 0.1
-            print("Needle not found.", threshold)
-        case x if x == ord("s"):
-            threshold -= 0.1
-            print("Needle not found.", threshold)
-        case x if x == ord("a"):
-            threshold += 0.01
-            print("Needle not found.", threshold)
-        case x if x == ord("d"):
-            threshold -= 0.01
-            print("Needle not found.", threshold)
+ev = 0x0002 | 0x4  # Example: MOUSEEVENTF_LEFTDOWN
+x = 146  # Example: x-coordinate
+y = 342  # Example: y-coordinate
+for i in range(1, 20, 10):
+    mouse_click.moue_click(ev, x + i, y + i)
