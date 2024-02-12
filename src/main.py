@@ -86,17 +86,17 @@ def opencv_event_callbacks(ev: Event) -> Callback:
     def mouse_callback(event, mouseX, mouseY, flags, param):
         nonlocal start, end
         if event == cv2.EVENT_LBUTTONUP:
-            print(mouseX, mouseY)
+            print(f"[leftclick]", mouseX, mouseY)
             # for tutorial automation,
-            ev.click(mouseX, mouseY)
+            # ev.click(mouseX, mouseY)
 
         if event == cv2.EVENT_RBUTTONUP:
-            print(mouseX, mouseY)
             if not start:
                 start = (mouseX, mouseY)
             elif not end:
                 end = (mouseX, mouseY)
-                ev.drag(start, end, Dragers.bezier())
+                print(f"[rightclick]", [start, end])
+                # ev.drag(start, end, Dragers.bezier())
                 start = None
                 end = None
 
@@ -117,6 +117,14 @@ def opencv_event_callbacks(ev: Event) -> Callback:
     )
 
 
+def all_global_position_resize(image):
+    global deck, hero, spwanner, unit_area
+    deck = resize_poses((image.shape[1], image.shape[0]), deck)
+    unit_area = resize_poses((image.shape[1], image.shape[0]), unit_area)
+    hero = resize_poses((image.shape[1], image.shape[0]), hero)
+    spwanner = resize_poses((image.shape[1], image.shape[0]), spwanner)
+
+
 templates = None
 
 
@@ -128,37 +136,23 @@ def main():
     # t.follow()
     # exit()
 
-    global THREADSHOLD, templates, deck, hero, spwanner, unit_area
-    force = False
-    SIZE = (350, 650)
-    image_name = "./test/screen.png"
-    if len(sys.argv) > 1:
-        if sys.argv[1] in ("true", "True"):
-            force = True
-        else:
-            if sys.argv[1].endswith(".jpg"):
-                image_name = sys.argv[1]
+    global THREADSHOLD, templates
+    # force = False
+    # templates = load_all_template(force)
 
-    templates = load_all_template(force)
-
-    # img = cv2.imread(image_name)
-    # img = cv2.resize(img, SIZE)
-
-    img2 = next(sc).copy()
+    screen_img = next(sc).copy()
+    all_global_position_resize(screen_img)
     callback = opencv_event_callbacks(event)
 
     cv2.namedWindow("image", cv2.WINDOW_AUTOSIZE)
     cv2.moveWindow("image", 300, 0)
     cv2.setMouseCallback("image", callback.mouse_callback)
     count = 0
-    # deck = resize_poses((img2.shape[1], img2.shape[0]), deck)
-    # unit_area = resize_poses((img2.shape[1], img2.shape[0]), unit_area)
-    # hero = resize_poses((img2.shape[1], img2.shape[0]), hero)
-    # spwanner = resize_poses((img2.shape[1], img2.shape[0]), spwanner)
+
     # analyed = False
     while True:
-        img2 = next(sc).copy()
-        img2.setflags(write=True)
+        screen_img = next(sc).copy()
+        screen_img.setflags(write=True)
         # exit(0)
         # img2 = template_paint(img, templates)
         # t.follow()
@@ -168,7 +162,7 @@ def main():
         # img2 = draw_rec(img2, None)
         # callback.setter(img2)
         # img2 = callback.getter()
-        cv2.imshow("image", img2)
+        cv2.imshow("image", screen_img)
         key = cv2.waitKey(1) & 0xFF
         if key == ord("q"):
             break

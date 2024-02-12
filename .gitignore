@@ -3,3 +3,10 @@ virtual
 
 # cached files
 __py*
+
+#ignore  hidden files
+.*
+
+# dll and binaries
+*.dll
+*.exe

@@ -3,8 +3,10 @@ import time
 import pywintypes
 import ctypes.wintypes
 import win32con, win32gui, win32api
+from os.path import dirname, abspath
 
 from bshot.screenshot import get_image
+
 
 from typing import Callable, Iterator
 
@@ -153,6 +155,17 @@ VIRTUAL_KEYS = {
     "K_PA1": 0xFD,
     "K_OEM_CLEAR": 0xFE,
 }
+
+
+try:
+    parent_dir = dirname(dirname(abspath(__file__)))
+    mouse_click = ctypes.CDLL(rf"{parent_dir}\mouse_click.dll")
+except FileNotFoundError as e:
+    raise Exception(
+        f"{e.with_traceback(None)}\n\n{'-'*10}\nPlease Run \n\t./run.sh prepdll\n{'-'*10}\n "
+    )
+mouse_click.moue_click.argtypes = [ctypes.c_ulong, ctypes.c_int, ctypes.c_int]
+mouse_click.moue_click.restype = None
 
 
 class Dragers:
@@ -350,7 +363,6 @@ class Dragers:
         return inner
 
 
-
 class Event:
     _initiated = None
     setuped = False
@@ -414,14 +426,21 @@ class Event:
         for more information:-https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-mouse_event
         """
 
-        x, y = self.__to_screen_space(x, y)
-        f = cwinu32.mouse_event(
-            ev | win32con.MOUSEEVENTF_ABSOLUTE,
-            ctypes.c_long(x),
-            ctypes.c_long(y),
-            scrollvalue,
-            0,
-        )
+        # x, y = self.__to_screen_space(x, y)
+        # f = cwinu32.mouse_event(
+        #     ev | win32con.MOUSEEVENTF_ABSOLUTE,
+        #     ctypes.c_long(x),
+        #     ctypes.c_long(y),
+        #     scrollvalue,
+        #     0,
+        # )
+        # ev = 0x0002 | 0x4  # Example: MOUSEEVENTF_LEFTDOWN
+        # x = 100  # Example: x-coordinate
+        # y = 100  # Example: y-coordinate
+        # for i in range(1, 100, 10):
+        mouse_click.moue_click(ev, x, y)
+        mouse_click.moue_click(ev, x, y)
+
         # self.use_send_input(ev, x, y)
 
     def __compute_virtual(self, key: str) -> int:

@@ -11,7 +11,6 @@ position_to_follow = [
     [100, 100],  # spwanner_click again
     [100, 100],  # spwanner_click again
     [100, 100],  # spwanner_click again
-    ...,  # to add more
 ]
 
 
